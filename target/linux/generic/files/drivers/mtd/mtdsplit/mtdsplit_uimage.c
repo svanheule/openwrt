@@ -411,9 +411,12 @@ static struct mtd_part_parser uimage_fonfxc_parser = {
  * OKLI (OpenWrt Kernel Loader Image)
  **************************************************/
 
-#define IH_MAGIC_OKLI	0x4f4b4c49
+#define IH_MAGIC_OKLI     0x4f4b4c49
+#define IH_MAGIC_OKLI_ELF 0x7f454c46
+#define OKLI_SEARCH_STEP  0x1000
+#define LOADER_PART_NAME  "loader"
 
-static ssize_t uimage_verify_okli(u_char *buf, size_t len, int *extralen)
+static ssize_t uimage_verify_okli(u_char *buf, size_t len)
 {
 	struct uimage_header *header = (struct uimage_header *)buf;
 
@@ -439,13 +442,160 @@ static ssize_t uimage_verify_okli(u_char *buf, size_t len, int *extralen)
 	return 0;
 }
 
+static int uimage_okli_verify_elf(struct mtd_info *mtd, size_t offset) {
+	uint32_t magic;
+	size_t magic_len;
+	int ret;
+
+	magic_len = sizeof(magic);
+
+	ret = read_uimage_header(mtd, offset, (u_char *)&magic, magic_len);
+	if (ret)
+		return ret;
+
+	if (be32_to_cpu(magic) != IH_MAGIC_OKLI_ELF) {
+		pr_debug("invalid ELF magic: %08x\n", be32_to_cpu(magic));
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static ssize_t
+uimage_okli_find_offset(struct mtd_info *master,
+				size_t *uimage_size)
+{
+	u_char *buf;
+	size_t offset;
+	int ret;
+
+	buf = vmalloc(MAX_HEADER_LEN);
+	if (!buf)
+		return -ENOMEM;
+
+	/* use default okli step size to search for uImage */
+	for (offset = 0; offset < master->size; offset += OKLI_SEARCH_STEP) {
+		struct uimage_header *header;
+
+		*uimage_size = 0;
+
+		ret = read_uimage_header(master, offset, buf, MAX_HEADER_LEN);
+		if (ret)
+			continue;
+
+		ret = uimage_verify_okli(buf, MAX_HEADER_LEN);
+		if (ret < 0) {
+			pr_debug("no valid uImage found in \"%s\" at offset %llx\n",
+				 master->name, (unsigned long long) offset);
+			continue;
+		}
+		header = (struct uimage_header *)(buf + ret);
+
+		*uimage_size = sizeof(*header) +
+				be32_to_cpu(header->ih_size) + ret;
+
+		if ((offset + *uimage_size) > master->size) {
+			pr_debug("uImage exceeds MTD device \"%s\"\n",
+				 master->name);
+			continue;
+		}
+		break;
+	}
+
+	vfree(buf);
+
+	return offset;
+}
+
 static int
 mtdsplit_uimage_parse_okli(struct mtd_info *master,
 			      const struct mtd_partition **pparts,
 			      struct mtd_part_parser_data *data)
 {
-	return __mtdsplit_parse_uimage(master, pparts, data,
-				      uimage_verify_okli);
+	struct mtd_partition *parts;
+	int nr_parts;
+	size_t uimage_offset;
+	size_t uimage_size = 0;
+	size_t rootfs_offset;
+	size_t rootfs_size = 0;
+	int uimage_part, rf_part;
+	int ret;
+	enum mtdsplit_part_type type;
+
+	ret = uimage_okli_find_offset(master, &uimage_size);
+	if (ret < 0)
+		return ret;
+
+	if (uimage_size == 0) {
+		pr_debug("no uImage found in \"%s\"\n", master->name);
+		return -ENODEV;
+	}
+
+	uimage_offset = ret;
+
+	if (uimage_offset == 0) {
+		nr_parts = 2;
+	}
+	else {
+		ret = uimage_okli_verify_elf(master, 0);
+		if (ret) {
+			pr_debug("no valid ELF image found in \"%s\"", master->name);
+			return ret;
+		}
+
+		nr_parts = 3;
+	}
+
+	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
+	if (!parts) {
+		return -ENOMEM;
+	}
+
+	if (nr_parts == 2) {
+		uimage_part = 0;
+		rf_part = 1;
+	} else {
+		parts[0].name = LOADER_PART_NAME;
+		parts[0].offset = 0;
+		parts[0].size = uimage_offset;
+
+		uimage_part = 1;
+		rf_part = 2;
+	}
+
+	ret = mtd_find_rootfs_from(master, uimage_offset + uimage_size,
+				   master->size, &rootfs_offset, &type);
+	if (ret) {
+		pr_debug("no rootfs after uImage in \"%s\"\n", master->name);
+		goto err_free_parts;
+	}
+
+	uimage_size = rootfs_offset - uimage_offset;
+	rootfs_size = master->size - rootfs_offset;
+
+	if (rootfs_size == 0) {
+		pr_debug("no rootfs found in \"%s\"\n", master->name);
+		ret = -ENODEV;
+		goto err_free_parts;
+	}
+
+	parts[uimage_part].name = KERNEL_PART_NAME;
+	parts[uimage_part].offset = uimage_offset;
+	parts[uimage_part].size = uimage_size;
+
+	if (type == MTDSPLIT_PART_TYPE_UBI)
+		parts[rf_part].name = UBI_PART_NAME;
+	else
+		parts[rf_part].name = ROOTFS_PART_NAME;
+	parts[rf_part].offset = rootfs_offset;
+	parts[rf_part].size = rootfs_size;
+
+	*pparts = parts;
+	return nr_parts;
+
+err_free_parts:
+	kfree(parts);
+	return ret;
 }
 
 static const struct of_device_id mtdsplit_uimage_okli_of_match_table[] = {
