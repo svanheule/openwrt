@@ -362,6 +362,18 @@ define Device/tplink_cpe610-v2
 endef
 TARGET_DEVICES += tplink_cpe610-v2
 
+define Device/tplink_eap245-v1
+  $(Device/tplink-safeloader-uimage)
+  SOC := qca9563
+  DEVICE_MODEL := EAP245
+  DEVICE_VARIANT := v1
+  TPLINK_BOARD_ID := EAP245-V1
+  IMAGE_SIZE := 15872k
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+  SUPPORTED_DEVICES += eap245-v1
+endef
+TARGET_DEVICES += tplink_eap245-v1
+
 define Device/tplink_re350k-v1
   $(Device/tplink-safeloader)
   SOC := qca9558

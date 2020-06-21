@@ -1,0 +1,154 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+#include "qca956x.dtsi"
+
+/ {
+	compatible = "tplink,eap245-v1", "qca,qca9563";
+	model = "TP-Link EAP245 v1";
+
+	chosen {
+		bootargs = "console=ttyS0,115200n8";
+	};
+
+	aliases {
+		led-boot = &system;
+		led-failsafe = &system;
+		led-running = &system;
+		led-upgrade = &system;
+		mdio-gpio0 = &mdio2;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		system: power {
+			label = "tp-link:green:power";
+			gpios = <&gpio 7 GPIO_ACTIVE_HIGH>;
+		};
+
+		wlan2g {
+			label = "tp-link:yellow:wlan2g";
+			gpios = <&gpio 9 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "phy1tpt";
+		};
+
+		wlan5g {
+			label = "tp-link:red:wlan5g";
+			gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "phy0tpt";
+		};
+
+	};
+
+	keys {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "Reset button";
+			linux,code = <KEY_RESTART>;
+			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
+			debounce-interval = <60>;
+		};
+	};
+
+	mdio2: mdio {
+		compatible = "virtual,mdio-gpio";
+
+		gpios = <&gpio 8 GPIO_ACTIVE_HIGH>, /* MDC */
+			<&gpio 10 GPIO_ACTIVE_HIGH>; /* MDIO */
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		phy4: ethernet-phy@4 {
+			reg = <4>;
+			device_type = "ethernet-phy";
+			reset-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&pcie {
+	status = "okay";
+};
+
+&uart {
+	status = "okay";
+};
+
+&gpio {
+	status = "okay";
+};
+
+&spi {
+	status = "okay";
+	num-cs = <1>;
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "u-boot";
+				reg = <0x000000 0x020000>;
+				read-only;
+			};
+
+			partition@20000 {
+				label = "partition-table";
+				reg = <0x020000 0x010000>;
+				read-only;
+			};
+
+			info: partition@30000 {
+				label = "info";
+				reg = <0x030000 0x010000>;
+				read-only;
+			};
+
+			partition@40000 {
+				compatible = "denx,uimage";
+				label = "firmware";
+				reg = <0x040000 0xf80000>;
+			};
+
+			partition@fc0000 {
+				label = "config";
+				reg = <0xfc0000 0x030000>;
+				read-only;
+			};
+
+			art: partition@ff0000 {
+				label = "art";
+				reg = <0xff0000 0x010000>;
+				read-only;
+			};
+		};
+	};
+};
+
+&eth0 {
+	status = "okay";
+
+	phy-handle = <&phy4>;
+
+	mtd-mac-address = <&info 0x8>;
+
+};
+
+&wmac {
+	status = "okay";
+
+	mtd-cal-data = <&art 0x1000>;
+	mtd-mac-address = <&info 0x8>;
+	mtd-mac-address-increment = <2>;
+};

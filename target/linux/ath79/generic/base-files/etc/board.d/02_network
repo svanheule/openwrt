@@ -35,6 +35,7 @@ ath79_setup_interfaces()
 	pisen,wmb001n|\
 	pisen,wmm003n|\
 	siemens,ws-ap3610|\
+	tplink,eap245-v1|\
 	tplink,cpe210-v2|\
 	tplink,cpe210-v3|\
 	tplink,cpe510-v2|\
