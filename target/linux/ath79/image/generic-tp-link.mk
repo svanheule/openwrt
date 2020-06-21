@@ -363,7 +363,7 @@ endef
 TARGET_DEVICES += tplink_cpe610-v2
 
 define Device/tplink_eap245-v1
-  $(Device/tplink-safeloader-uimage)
+  $(Device/tplink-safeloader-okli)
   SOC := qca9563
   DEVICE_MODEL := EAP245
   DEVICE_VARIANT := v1
