@@ -143,6 +143,8 @@
 
 	mtd-mac-address = <&info 0x8>;
 
+	qca956x-serdes-fixup;
+
 	gmac-config {
 		device = <&gmac>;
 
