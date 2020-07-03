@@ -48,21 +48,6 @@
 			debounce-interval = <60>;
 		};
 	};
-
-	mdio2: mdio {
-		compatible = "virtual,mdio-gpio";
-
-		gpios = <&gpio 8 GPIO_ACTIVE_HIGH>, /* MDC */
-			<&gpio 10 GPIO_ACTIVE_HIGH>; /* MDIO */
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		phy4: ethernet-phy@4 {
-			reg = <4>;
-			device_type = "ethernet-phy";
-			reset-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
-		};
-	};
 };
 
 &pcie {
@@ -127,6 +112,29 @@
 				read-only;
 			};
 		};
+	};
+};
+
+&pinmux {
+	mdio_pins: pinux_mdio_pins {
+		/* GPIO 8 as MDC(0x21), GPIO 10 as MDIO(0x20) */
+		pinctrl-single,bits = <0x8 0x00000021 0x000000ff>,
+				<0x8 0x00200000 0x00ff0000>;
+	};
+};
+
+&mdio0 {
+	status = "okay";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&mdio_pins>;
+
+	phy-mask = <0x10>;
+
+	phy4: ethernet-phy@4 {
+		reg = <4>;
+		phy-mode = "sgmii";
+		reset-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
 	};
 };
 
