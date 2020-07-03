@@ -110,7 +110,7 @@
 			};
 
 			partition@40000 {
-				compatible = "openwrt,okli";
+				compatible = "openwrt,elf";
 				label = "firmware";
 				reg = <0x040000 0xf80000>;
 			};
