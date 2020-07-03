@@ -11,6 +11,7 @@
 	model = "TP-Link EAP245 v1";
 
 	aliases {
+		label-device-mac = &eth0;
 		led-boot = &led_status_green;
 		led-failsafe = &led_status_amber;
 		led-running = &led_status_green;
