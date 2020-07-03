@@ -11,33 +11,30 @@
 	model = "TP-Link EAP245 v1";
 
 	aliases {
-		led-boot = &system;
-		led-failsafe = &system;
-		led-running = &system;
-		led-upgrade = &system;
-		mdio-gpio0 = &mdio2;
+		led-boot = &led_status_green;
+		led-failsafe = &led_status_amber;
+		led-running = &led_status_green;
+		led-upgrade = &led_status_amber;
 	};
 
 	leds {
 		compatible = "gpio-leds";
 
-		system: power {
-			label = "tp-link:green:power";
+		led_status_green: status_green {
+			label = "tp-link:green:status";
 			gpios = <&gpio 7 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
 		};
 
-		wlan2g {
-			label = "tp-link:yellow:wlan2g";
+		led_status_amber: status_amber {
+			label = "tp-link:amber:status";
 			gpios = <&gpio 9 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "phy1tpt";
 		};
 
-		wlan5g {
-			label = "tp-link:red:wlan5g";
+		led_status_red: status_red {
+			label = "tp-link:red:status";
 			gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "phy0tpt";
 		};
-
 	};
 
 	keys {
