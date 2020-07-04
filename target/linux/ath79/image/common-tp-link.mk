@@ -94,3 +94,10 @@ define Device/tplink-safeloader-okli
 	loader-okli $(1) 12288
   KERNEL_INITRAMFS := $$(KERNEL)
 endef
+
+define Device/tplink-safeloader-elf
+  $(Device/tplink-safeloader)
+  LOADER_TYPE := elf
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel
+  KERNEL_INITRAMFS := $$(KERNEL)
+endef
