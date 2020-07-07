@@ -1296,7 +1296,7 @@ static struct device_info boards[] = {
 		.id     = "EAP225OD-V1",
 		.support_list =
 			"SupportList:\r\n"
-			"EAP225-Outdoor(TP-LINK|UN|AC1200-D):1.0\r\n",
+			"EAP225-Outdoor(TP-Link|UN|AC1200-D):1.0\r\n",
 		.support_trail = '\xff',
 		.soft_ver = NULL,
 
