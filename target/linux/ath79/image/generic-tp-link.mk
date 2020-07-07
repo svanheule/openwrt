@@ -362,6 +362,17 @@ define Device/tplink_cpe610-v2
 endef
 TARGET_DEVICES += tplink_cpe610-v2
 
+define Device/tplink_eap225od-v1
+  $(Device/tplink-safeloader-elf)
+  SOC := qca9563
+  DEVICE_MODEL := EAP225-Outdoor
+  DEVICE_VARIANT := v1
+  TPLINK_BOARD_ID := EAP225OD-V1
+  IMAGE_SIZE := 15104k
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+endef
+TARGET_DEVICES += tplink_eap225od-v1
+
 define Device/tplink_eap245-v1
   $(Device/tplink-safeloader-elf)
   SOC := qca9563

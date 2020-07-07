@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+#include "qca956x.dtsi"
+
+/ {
+	compatible = "tplink,eap225od-v1", "qca,qca9563";
+	model = "TP-Link EAP225-Outdoor v1";
+
+	aliases {
+		label-device-mac = &eth0;
+		led-boot = &led_status_green;
+		led-failsafe = &led_status_amber;
+		led-running = &led_status_green;
+		led-upgrade = &led_status_amber;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led_status_green: status_green {
+			label = "tp-link:green:status";
+			gpios = <&gpio 7 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+
+		led_status_amber: status_amber {
+			label = "tp-link:amber:status";
+			gpios = <&gpio 9 GPIO_ACTIVE_LOW>;
+		};
+	};
+
+	keys {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "Reset button";
+			linux,code = <KEY_RESTART>;
+			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
+			debounce-interval = <60>;
+		};
+	};
+};
+
+&pcie {
+	status = "okay";
+};
+
+&uart {
+	status = "okay";
+};
+
+&gpio {
+	status = "okay";
+};
+
+&spi {
+	status = "okay";
+	num-cs = <1>;
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <25000000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "u-boot";
+				reg = <0x000000 0x020000>;
+				read-only;
+			};
+
+			partition@20000 {
+				label = "partition-table";
+				reg = <0x020000 0x010000>;
+				read-only;
+			};
+
+			info: partition@30000 {
+				label = "info";
+				reg = <0x030000 0x010000>;
+				read-only;
+			};
+
+			partition@40000 {
+				compatible = "openwrt,elf";
+				label = "firmware";
+				reg = <0x040000 0xec0000>;
+			};
+
+			partition@f00000 {
+				label = "config";
+				reg = <0xf00000 0x030000>;
+				read-only;
+			};
+
+			partition@f30000 {
+				label = "mutil-log";
+				reg = <0xf30000 0x080000>;
+				read-only;
+			};
+
+			partition@fb0000 {
+				label = "oops";
+				reg = <0xfb0000 0x040000>;
+				read-only;
+			};
+
+			art: partition@ff0000 {
+				label = "art";
+				reg = <0xff0000 0x010000>;
+				read-only;
+			};
+		};
+	};
+};
+
+&pinmux {
+	mdio_pins: pinux_mdio_pins {
+		/* GPIO 8 as MDC(0x21), GPIO 10 as MDIO(0x20) */
+		pinctrl-single,bits = <0x8 0x00000021 0x000000ff>,
+				<0x8 0x00200000 0x00ff0000>;
+	};
+};
+
+&mdio0 {
+	status = "okay";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&mdio_pins>;
+
+	phy-mask = <0x10>;
+
+	phy4: ethernet-phy@4 {
+		reg = <4>;
+		phy-mode = "sgmii";
+		reset-gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&eth0 {
+	status = "okay";
+
+	phy-handle = <&phy4>;
+
+	mtd-mac-address = <&info 0x8>;
+
+	qca956x-serdes-fixup;
+
+	gmac-config {
+		device = <&gmac>;
+
+		rgmii-ge0 = <1>;
+		ge0-sgmii = <1>;
+		rxdv-delay = <3>;
+		rxd-delay = <3>;
+	};
+};
+
+&wmac {
+	status = "okay";
+
+	mtd-cal-data = <&art 0x1000>;
+	mtd-mac-address = <&info 0x8>;
+	mtd-mac-address-increment = <2>;
+};
