@@ -643,7 +643,6 @@ static void ag71xx_serdes_cal_qca956x(struct device_node *np)
 			& QCA956X_SGMII_SERDES_LOCK_DETECT_STATUS))
 		;
 
-serdes_out:
 	iounmap(gmac_base);
 err_iomap:
 	of_node_put(np_dev);
