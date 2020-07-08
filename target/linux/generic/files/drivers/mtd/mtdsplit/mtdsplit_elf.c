@@ -87,8 +87,8 @@ struct elf_header_64 {
 struct elf_header {
     struct elf_header_ident ident;
     union {
-        struct elf_header_32 class32;
-        struct elf_header_64 class64;
+        struct elf_header_32 elf32;
+        struct elf_header_64 elf64;
     };
 };
 
@@ -134,10 +134,10 @@ static int mtdsplit_parse_elf(struct mtd_info *mtd,
 
 	switch (hdr.ident.class) {
 	case ELF_CLASS_32:
-		loader_size = hdr.class32.shoff + hdr.class32.shnum * hdr.class32.shentsize;
+		loader_size = hdr.elf32.shoff + hdr.elf32.shnum * hdr.elf32.shentsize;
 		break;
 	case ELF_CLASS_64:
-		loader_size = hdr.class64.shoff + hdr.class64.shnum * hdr.class64.shentsize;
+		loader_size = hdr.elf64.shoff + hdr.elf64.shnum * hdr.elf64.shentsize;
 		break;
 	default:
 		pr_debug("invalid ELF class %i\n", hdr.ident.class);
