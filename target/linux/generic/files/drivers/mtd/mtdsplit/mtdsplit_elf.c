@@ -117,47 +117,32 @@ static int mtdsplit_parse_elf(struct mtd_info *mtd,
 				const struct mtd_partition **pparts,
 				struct mtd_part_parser_data *data)
 {
-	struct elf_header *hdr;
-	size_t shoff, shnum, shentsize;
+	struct elf_header hdr;
 	size_t loader_size, rootfs_offset;
 	enum mtdsplit_part_type type;
 	struct mtd_partition *parts;
 	int err;
 
-	hdr = vmalloc(sizeof(*hdr));
-	if (!hdr)
-		return -ENOMEM;
-
-	err = mtdsplit_elf_read_mtd(mtd, 0, (uint8_t *)hdr, sizeof(*hdr));
+	err = mtdsplit_elf_read_mtd(mtd, 0, (uint8_t *)&hdr, sizeof(hdr));
 	if (err)
 		return err;
 
-	if (be32_to_cpu(hdr->ident.magic) != ELF_MAGIC) {
-		pr_debug("invalid ELF magic %08x\n", be32_to_cpu(hdr->ident.magic));
-		err = -EINVAL;
-		goto err_free_hdr;
+	if (be32_to_cpu(hdr.ident.magic) != ELF_MAGIC) {
+		pr_debug("invalid ELF magic %08x\n", be32_to_cpu(hdr.ident.magic));
+		return -EINVAL;
 	}
 
-	switch (hdr->ident.class) {
+	switch (hdr.ident.class) {
 	case ELF_CLASS_32:
-		shoff = hdr->class32.shoff;
-		shnum = hdr->class32.shnum;
-		shentsize = hdr->class32.shentsize;
+		loader_size = hdr.class32.shoff + hdr.class32.shnum * hdr.class32.shentsize;
 		break;
 	case ELF_CLASS_64:
-		shoff = hdr->class64.shoff;
-		shnum = hdr->class64.shnum;
-		shentsize = hdr->class64.shentsize;
+		loader_size = hdr.class64.shoff + hdr.class64.shnum * hdr.class64.shentsize;
 		break;
 	default:
-		pr_debug("invalid ELF class %i\n", hdr->ident.class);
-		err = -EINVAL;
-		goto err_free_hdr;
+		pr_debug("invalid ELF class %i\n", hdr.ident.class);
+		return -EINVAL;
 	}
-
-	vfree(hdr);
-
-	loader_size = shoff + shnum * shentsize;
 
 	err = mtd_find_rootfs_from(mtd, loader_size, mtd->size,
 				   &rootfs_offset, &type);
@@ -186,10 +171,6 @@ static int mtdsplit_parse_elf(struct mtd_info *mtd,
 
 	*pparts = parts;
 	return ELF_NR_PARTS;
-
-err_free_hdr:
-    vfree(hdr);
-    return err;
 }
 
 static const struct of_device_id mtdsplit_elf_of_match_table[] = {
