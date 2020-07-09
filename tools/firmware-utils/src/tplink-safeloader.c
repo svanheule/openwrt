@@ -70,6 +70,12 @@ struct flash_partition_entry {
 	uint32_t size;
 };
 
+/** Image feature flags to tailor images */
+enum image_feature_flag {
+	SUPPORT_LIST_NO_TRAIL     = (1 <<  0),
+	SOFT_VERSION_NO_TRAIL     = (1 <<  1),
+};
+
 /** Firmware layout description */
 struct device_info {
 	const char *id;
@@ -80,6 +86,7 @@ struct device_info {
 	struct flash_partition_entry partitions[MAX_PARTITIONS+1];
 	const char *first_sysupgrade_partition;
 	const char *last_sysupgrade_partition;
+	enum image_feature_flag image_features;
 };
 
 struct __attribute__((__packed__)) meta_partition_header {
