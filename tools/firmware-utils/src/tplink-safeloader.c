@@ -72,8 +72,9 @@ struct flash_partition_entry {
 
 /** Image feature flags to tailor images */
 enum image_feature_flag {
-	IMAGE_SUPPORT_LIST_NO_TRAIL = (1 <<  0),
-	IMAGE_SOFT_VERSION_NO_TRAIL = (1 <<  1),
+	IMAGE_SUPPORT_LIST_NO_TRAIL     = (1 <<  0),
+	IMAGE_SOFT_VERSION_NO_TRAIL     = (1 <<  1),
+	IMAGE_SOFT_VERSION_COMPAT_LEVEL = (1 <<  2)
 };
 
 /** Firmware layout description */
@@ -87,6 +88,7 @@ struct device_info {
 	const char *first_sysupgrade_partition;
 	const char *last_sysupgrade_partition;
 	enum image_feature_flag image_features;
+	unsigned soft_ver_compat_level;
 };
 
 struct __attribute__((__packed__)) meta_partition_header {
@@ -1312,12 +1314,14 @@ static struct device_info boards[] = {
 	/** Firmware layout for the EAP225-Outdoor v1 */
 	{
 		.image_features = IMAGE_SUPPORT_LIST_NO_TRAIL |
-			IMAGE_SOFT_VERSION_NO_TRAIL,
+			IMAGE_SOFT_VERSION_NO_TRAIL |
+			IMAGE_SOFT_VERSION_COMPAT_LEVEL,
 		.id     = "EAP225OD-V1",
 		.support_list =
 			"SupportList:\r\n"
 			"EAP225-Outdoor(TP-Link|UN|AC1200-D):1.0\r\n",
 		.soft_ver = NULL,
+		.soft_ver_compat_level = 1,
 
 		.partitions = {
 			{"fs-uboot", 0x00000, 0x20000},
@@ -2057,10 +2061,13 @@ static inline uint8_t bcd(uint8_t v) {
 /** Generates the soft-version partition */
 static struct image_partition_entry make_soft_version(struct device_info *info, uint32_t rev) {
 	size_t part_len = sizeof(struct soft_version);
+	size_t pad_len = 0;
+	if (info->image_features & IMAGE_SOFT_VERSION_COMPAT_LEVEL)
+		part_len += sizeof(uint32_t);
 	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
-		part_len += 1;
+		pad_len = 1;
 
-	struct image_partition_entry entry = alloc_image_partition("soft-version", part_len);
+	struct image_partition_entry entry = alloc_image_partition("soft-version", part_len + pad_len);
 	struct soft_version *s = (struct soft_version *)entry.data;
 
 	time_t t;
@@ -2072,10 +2079,14 @@ static struct image_partition_entry make_soft_version(struct device_info *info, 
 
 	struct tm *tm = localtime(&t);
 
-	s->header.data_len = htonl(sizeof(s->base));
-	s->header.zero = 0;
-	s->base.version.pad = 0xff;
+	struct meta_partition_header header = {
+		.data_len = htonl(part_len - sizeof(s->header)),
+		.zero = 0
+	};
 
+	s->header = header;
+
+	s->base.version.pad = 0xff;
 	s->base.version.major = 0;
 	s->base.version.minor = 0;
 	s->base.version.patch = 0;
@@ -2085,6 +2096,11 @@ static struct image_partition_entry make_soft_version(struct device_info *info, 
 	s->base.date.month = bcd(tm->tm_mon+1);
 	s->base.date.day = bcd(tm->tm_mday);
 	s->base.rev = htonl(rev);
+
+	if (info->image_features & IMAGE_SOFT_VERSION_COMPAT_LEVEL) {
+		*(uint32_t *)(entry.data+sizeof(struct soft_version)) +=
+			htobe32(info->soft_ver_compat_level);
+	}
 
 	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
 		entry.data[part_len-1] = 0xff;
