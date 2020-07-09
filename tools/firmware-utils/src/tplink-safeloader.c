@@ -83,7 +83,7 @@ struct device_info {
 };
 
 struct __attribute__((__packed__)) meta_partition_header {
-	uint32_t magic;
+	uint32_t data_len;
 	uint32_t zero;
 };
 
@@ -2061,7 +2061,7 @@ static struct image_partition_entry make_soft_version(uint32_t rev) {
 
 	struct tm *tm = localtime(&t);
 
-	s->header.magic = htonl(0x0000000c);
+	s->header.data_len = htonl(sizeof(s->base));
 	s->header.zero = 0;
 	s->base.version.pad = 0xff;
 
