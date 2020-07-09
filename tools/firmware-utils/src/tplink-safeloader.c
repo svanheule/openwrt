@@ -1311,12 +1311,12 @@ static struct device_info boards[] = {
 
 	/** Firmware layout for the EAP225-Outdoor v1 */
 	{
-		.image_features = IMAGE_SOFT_VERSION_NO_TRAIL,
+		.image_features = IMAGE_SUPPORT_LIST_NO_TRAIL |
+			IMAGE_SOFT_VERSION_NO_TRAIL,
 		.id     = "EAP225OD-V1",
 		.support_list =
 			"SupportList:\r\n"
 			"EAP225-Outdoor(TP-Link|UN|AC1200-D):1.0\r\n",
-		.support_trail = '\xff',
 		.soft_ver = NULL,
 
 		.partitions = {
@@ -2111,13 +2111,23 @@ static struct image_partition_entry make_soft_version_from_string(const char *so
 
 /** Generates the support-list partition */
 static struct image_partition_entry make_support_list(struct device_info *info) {
-	size_t len = strlen(info->support_list);
-	struct image_partition_entry entry = alloc_image_partition("support-list", len + 9);
+	size_t support_list_len = strlen(info->support_list);
+	struct meta_partition_header header = {
+		.data_len = htobe32(support_list_len),
+		.zero = 0
+	};
 
-	put32(entry.data, len);
-	memset(entry.data+4, 0, 4);
-	memcpy(entry.data+8, info->support_list, len);
-	entry.data[len+8] = info->support_trail;
+	size_t len = sizeof(header) + support_list_len;
+	if ( !(info->image_features & IMAGE_SUPPORT_LIST_NO_TRAIL) )
+		len += 1;
+
+	struct image_partition_entry entry = alloc_image_partition("support-list", len);
+
+	memcpy(entry.data, &header, sizeof(header));
+	memcpy(entry.data+sizeof(header), info->support_list, support_list_len);
+
+	if ( !(info->image_features & IMAGE_SUPPORT_LIST_NO_TRAIL) )
+		entry.data[len-1] = info->support_trail;
 
 	return entry;
 }
