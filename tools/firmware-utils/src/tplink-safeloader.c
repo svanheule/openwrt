@@ -72,8 +72,8 @@ struct flash_partition_entry {
 
 /** Image feature flags to tailor images */
 enum image_feature_flag {
-	SUPPORT_LIST_NO_TRAIL     = (1 <<  0),
-	SOFT_VERSION_NO_TRAIL     = (1 <<  1),
+	IMAGE_SUPPORT_LIST_NO_TRAIL = (1 <<  0),
+	IMAGE_SOFT_VERSION_NO_TRAIL = (1 <<  1),
 };
 
 /** Firmware layout description */
@@ -114,7 +114,6 @@ struct __attribute__((__packed__)) soft_version_base {
 struct __attribute__((__packed__)) soft_version {
 	struct meta_partition_header header;
 	struct soft_version_base base;
-	uint8_t pad2;
 };
 
 
@@ -1312,6 +1311,7 @@ static struct device_info boards[] = {
 
 	/** Firmware layout for the EAP225-Outdoor v1 */
 	{
+		.image_features = IMAGE_SOFT_VERSION_NO_TRAIL,
 		.id     = "EAP225OD-V1",
 		.support_list =
 			"SupportList:\r\n"
@@ -2055,8 +2055,12 @@ static inline uint8_t bcd(uint8_t v) {
 
 
 /** Generates the soft-version partition */
-static struct image_partition_entry make_soft_version(uint32_t rev) {
-	struct image_partition_entry entry = alloc_image_partition("soft-version", sizeof(struct soft_version));
+static struct image_partition_entry make_soft_version(struct device_info *info, uint32_t rev) {
+	size_t part_len = sizeof(struct soft_version);
+	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
+		part_len += 1;
+
+	struct image_partition_entry entry = alloc_image_partition("soft-version", part_len);
 	struct soft_version *s = (struct soft_version *)entry.data;
 
 	time_t t;
@@ -2082,7 +2086,8 @@ static struct image_partition_entry make_soft_version(uint32_t rev) {
 	s->base.date.day = bcd(tm->tm_mday);
 	s->base.rev = htonl(rev);
 
-	s->pad2 = 0xff;
+	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
+		entry.data[part_len-1] = 0xff;
 
 	return entry;
 }
@@ -2394,7 +2399,7 @@ static void build_image(const char *output,
 	if (info->soft_ver)
 		parts[1] = make_soft_version_from_string(info->soft_ver);
 	else
-		parts[1] = make_soft_version(rev);
+		parts[1] = make_soft_version(info, rev);
 
 	parts[2] = make_support_list(info);
 	parts[3] = read_file("os-image", kernel_image, false, NULL);
