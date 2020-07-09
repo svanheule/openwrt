@@ -82,19 +82,31 @@ struct device_info {
 	const char *last_sysupgrade_partition;
 };
 
-/** The content of the soft-version structure */
-struct __attribute__((__packed__)) soft_version {
+struct __attribute__((__packed__)) meta_partition_header {
 	uint32_t magic;
 	uint32_t zero;
-	uint8_t pad1;
-	uint8_t version_major;
-	uint8_t version_minor;
-	uint8_t version_patch;
-	uint8_t year_hi;
-	uint8_t year_lo;
-	uint8_t month;
-	uint8_t day;
+};
+
+/** The content of the soft-version structure */
+struct __attribute__((__packed__)) soft_version_base {
+	struct {
+		uint8_t pad;
+		uint8_t major;
+		uint8_t minor;
+		uint8_t patch;
+	} version;
+	struct {
+		uint8_t year_hi;
+		uint8_t year_lo;
+		uint8_t month;
+		uint8_t day;
+	} date;
 	uint32_t rev;
+};
+
+struct __attribute__((__packed__)) soft_version {
+	struct meta_partition_header header;
+	struct soft_version_base base;
 	uint8_t pad2;
 };
 
@@ -2049,19 +2061,19 @@ static struct image_partition_entry make_soft_version(uint32_t rev) {
 
 	struct tm *tm = localtime(&t);
 
-	s->magic = htonl(0x0000000c);
-	s->zero = 0;
-	s->pad1 = 0xff;
+	s->header.magic = htonl(0x0000000c);
+	s->header.zero = 0;
+	s->base.version.pad = 0xff;
 
-	s->version_major = 0;
-	s->version_minor = 0;
-	s->version_patch = 0;
+	s->base.version.major = 0;
+	s->base.version.minor = 0;
+	s->base.version.patch = 0;
 
-	s->year_hi = bcd((1900+tm->tm_year)/100);
-	s->year_lo = bcd(tm->tm_year%100);
-	s->month = bcd(tm->tm_mon+1);
-	s->day = bcd(tm->tm_mday);
-	s->rev = htonl(rev);
+	s->base.date.year_hi = bcd((1900+tm->tm_year)/100);
+	s->base.date.year_lo = bcd(tm->tm_year%100);
+	s->base.date.month = bcd(tm->tm_mon+1);
+	s->base.date.day = bcd(tm->tm_mday);
+	s->base.rev = htonl(rev);
 
 	s->pad2 = 0xff;
 
@@ -2403,7 +2415,7 @@ static void build_image(const char *output,
 		/* EAP245 stock images are missing padding bytes and partition order is different */
 		struct image_partition_entry tmp = parts[1];
 		struct soft_version *s = (struct soft_version *) parts[1].data;
-		s->version_major = 1;
+		s->base.version.major = 1;
 		parts[1] = parts[2];
 		parts[2] = tmp;
 		parts[1].size--;
