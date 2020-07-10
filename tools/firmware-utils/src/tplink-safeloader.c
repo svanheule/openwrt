@@ -113,11 +113,6 @@ struct __attribute__((__packed__)) soft_version_base {
 	uint32_t rev;
 };
 
-struct __attribute__((__packed__)) soft_version {
-	struct meta_partition_header header;
-	struct soft_version_base base;
-};
-
 
 static const uint8_t jffs2_eof_mark[4] = {0xde, 0xad, 0xc0, 0xde};
 
@@ -2060,15 +2055,17 @@ static inline uint8_t bcd(uint8_t v) {
 
 /** Generates the soft-version partition */
 static struct image_partition_entry make_soft_version(struct device_info *info, uint32_t rev) {
-	size_t part_len = sizeof(struct soft_version);
-	size_t pad_len = 0;
+	size_t data_len = 0;
 	if (info->image_features & IMAGE_SOFT_VERSION_COMPAT_LEVEL)
-		part_len += sizeof(uint32_t);
-	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
-		pad_len = 1;
+		data_len = sizeof(struct soft_version_base) + sizeof(uint32_t);
+	else
+		data_len = sizeof(struct soft_version_base);
 
-	struct image_partition_entry entry = alloc_image_partition("soft-version", part_len + pad_len);
-	struct soft_version *s = (struct soft_version *)entry.data;
+	size_t part_len = sizeof(struct meta_partition_header) + data_len;
+	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
+		part_len += 1;
+
+	struct image_partition_entry entry = alloc_image_partition("soft-version", part_len);
 
 	time_t t;
 
@@ -2079,31 +2076,37 @@ static struct image_partition_entry make_soft_version(struct device_info *info, 
 
 	struct tm *tm = localtime(&t);
 
-	struct meta_partition_header header = {
-		.data_len = htonl(part_len - sizeof(s->header)),
-		.zero = 0
-	};
+	struct meta_partition_header *header;
+	struct soft_version_base *soft_ver_base;
+	size_t offset = 0;
 
-	s->header = header;
+	header = (struct meta_partition_header *)(entry.data);
+	offset += sizeof(*header);
 
-	s->base.version.pad = 0xff;
-	s->base.version.major = 0;
-	s->base.version.minor = 0;
-	s->base.version.patch = 0;
+	header->data_len = htonl(data_len);
+	header->zero = 0;
 
-	s->base.date.year_hi = bcd((1900+tm->tm_year)/100);
-	s->base.date.year_lo = bcd(tm->tm_year%100);
-	s->base.date.month = bcd(tm->tm_mon+1);
-	s->base.date.day = bcd(tm->tm_mday);
-	s->base.rev = htonl(rev);
+	soft_ver_base = (struct soft_version_base *)(entry.data+offset);
+	offset += sizeof(*soft_ver_base);
+
+	soft_ver_base->version.pad = 0xff;
+	soft_ver_base->version.major = 0;
+	soft_ver_base->version.minor = 0;
+	soft_ver_base->version.patch = 0;
+
+	soft_ver_base->date.year_hi = bcd((1900+tm->tm_year)/100);
+	soft_ver_base->date.year_lo = bcd(tm->tm_year%100);
+	soft_ver_base->date.month = bcd(tm->tm_mon+1);
+	soft_ver_base->date.day = bcd(tm->tm_mday);
+	soft_ver_base->rev = htobe32(rev);
 
 	if (info->image_features & IMAGE_SOFT_VERSION_COMPAT_LEVEL) {
-		*(uint32_t *)(entry.data+sizeof(struct soft_version)) +=
-			htobe32(info->soft_ver_compat_level);
+		*(uint32_t *)(entry.data+offset) += htobe32(info->soft_ver_compat_level);
+		offset += sizeof(uint32_t);
 	}
 
 	if ( !(info->image_features & IMAGE_SOFT_VERSION_NO_TRAIL) )
-		entry.data[part_len-1] = 0xff;
+		entry.data[offset] = 0xff;
 
 	return entry;
 }
@@ -2452,8 +2455,8 @@ static void build_image(const char *output,
 	} else if(strcasecmp(info->id, "EAP245_V1") == 0) {
 		/* EAP245 stock images are missing padding bytes and partition order is different */
 		struct image_partition_entry tmp = parts[1];
-		struct soft_version *s = (struct soft_version *) parts[1].data;
-		s->base.version.major = 1;
+		struct soft_version_base *s = (struct soft_version_base *) parts[1].data;
+		s->version.major = 1;
 		parts[1] = parts[2];
 		parts[2] = tmp;
 		parts[1].size--;
