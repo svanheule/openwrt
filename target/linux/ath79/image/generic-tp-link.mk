@@ -382,6 +382,16 @@ define Device/tplink_eap225-outdoor-v1
 endef
 TARGET_DEVICES += tplink_eap225-outdoor-v1
 
+define Device/tplink_eap225-v3
+  $(Device/tplink-eap2x5)
+  IMAGE_SIZE := 15104k
+  DEVICE_MODEL := EAP225
+  DEVICE_VARIANT := v3
+  TPLINK_BOARD_ID := EAP225-V3
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9888-ct
+endef
+TARGET_DEVICES += tplink_eap225-v3
+
 define Device/tplink_eap245-v1
   $(Device/tplink-eap2x5)
   IMAGE_SIZE := 15104k
