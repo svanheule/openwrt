@@ -37,4 +37,16 @@ define Device/allnet_all-sg8208m
 endef
 TARGET_DEVICES += allnet_all-sg8208m
 
+define Device/netgear_gs110tpp-v1
+  $(Device/Default)
+  SOC := rtl8380
+  IMAGE_SIZE := 14848k
+  UIMAGE_MAGIC := 0x4e474520
+  DEVICE_VENDOR := NETGEAR
+  DEVICE_MODEL := GS110TP
+  DEVICE_VARIANT := v1
+  DEVICE_PACKAGES := ip-full ip-bridge ethtool tc
+endef
+TARGET_DEVICES += netgear_gs110tpp-v1
+
 $(eval $(call BuildImage))

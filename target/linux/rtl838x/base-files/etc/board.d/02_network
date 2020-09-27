@@ -68,7 +68,8 @@ rtl838x_setup_macs()
 	local label_mac
 
 	case $board in
-	allnet,all-sg8208m)
+	allnet,all-sg8208m|\
+	netgear,gs110tpp-v1)
 		lan_mac=$(mtd_get_mac_ascii u-boot-env ethaddr)
 		label_mac=$lan_mac
 	esac
