@@ -247,7 +247,7 @@ endef
 TARGET_DEVICES += tplink_archer-d7b-v1
 
 define Device/tplink_cpe210-v1
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE210
@@ -285,7 +285,7 @@ endef
 TARGET_DEVICES += tplink_cpe210-v3
 
 define Device/tplink_cpe220-v2
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE220
@@ -308,7 +308,7 @@ endef
 TARGET_DEVICES += tplink_cpe220-v3
 
 define Device/tplink_cpe510-v1
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE510
@@ -320,7 +320,7 @@ endef
 TARGET_DEVICES += tplink_cpe510-v1
 
 define Device/tplink_cpe510-v2
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE510
@@ -332,7 +332,7 @@ endef
 TARGET_DEVICES += tplink_cpe510-v2
 
 define Device/tplink_cpe510-v3
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE510
@@ -343,7 +343,7 @@ endef
 TARGET_DEVICES += tplink_cpe510-v3
 
 define Device/tplink_cpe610-v1
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE610
@@ -353,7 +353,7 @@ endef
 TARGET_DEVICES += tplink_cpe610-v1
 
 define Device/tplink_cpe610-v2
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := CPE610
@@ -363,10 +363,7 @@ endef
 TARGET_DEVICES += tplink_cpe610-v2
 
 define Device/tplink-eap2x5
-  $(Device/tplink-safeloader)
-  LOADER_TYPE := elf
-  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel
-  KERNEL_INITRAMFS := $$(KERNEL)
+  $(Device/tplink-safeloader-elf)
   IMAGE/factory.bin := append-rootfs | tplink-safeloader factory | \
 	pad-extra 128
 endef
@@ -745,7 +742,7 @@ endef
 TARGET_DEVICES += tplink_tl-wr902ac-v1
 
 define Device/tplink_wbs210-v1
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := WBS210
@@ -757,7 +754,7 @@ endef
 TARGET_DEVICES += tplink_wbs210-v1
 
 define Device/tplink_wbs210-v2
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := WBS210
@@ -768,7 +765,7 @@ endef
 TARGET_DEVICES += tplink_wbs210-v2
 
 define Device/tplink_wbs510-v1
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := WBS510
@@ -780,7 +777,7 @@ endef
 TARGET_DEVICES += tplink_wbs510-v1
 
 define Device/tplink_wbs510-v2
-  $(Device/tplink-safeloader-okli)
+  $(Device/tplink-safeloader-elf)
   SOC := ar9344
   IMAGE_SIZE := 7680k
   DEVICE_MODEL := WBS510

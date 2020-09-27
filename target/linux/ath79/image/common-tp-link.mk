@@ -84,13 +84,9 @@ define Device/tplink-safeloader-uimage
   KERNEL_INITRAMFS := $$(KERNEL)
 endef
 
-define Device/tplink-safeloader-okli
+define Device/tplink-safeloader-elf
   $(Device/tplink-safeloader)
   LOADER_TYPE := elf
-  LOADER_FLASH_OFFS := 0x43000
-  COMPILE := loader-$(1).elf
-  COMPILE/loader-$(1).elf := loader-okli-compile
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49 | \
-	loader-okli $(1) 12288
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel
   KERNEL_INITRAMFS := $$(KERNEL)
 endef
