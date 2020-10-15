@@ -405,13 +405,23 @@ endef
 TARGET_DEVICES += tplink_eap225-wall-v2
 
 define Device/tplink_eap245-v1
-  $(Device/tplink-eap2x5)
+  LOADER_TYPE := elf
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel
+  KERNEL_INITRAMFS := $$(KERNEL)
+  IMAGES += factory.bin
+  IMAGE/sysupgrade.bin := append-rootfs | tplink-safeloader sysupgrade | \
+	append-metadata | check-size
+  IMAGE/factory.bin := append-rootfs | tplink-safeloader factory | \
+	pad-extra 128
   SOC := qca9563
   IMAGE_SIZE := 13824k
+  DEVICE_VENDOR := TP-Link
   DEVICE_MODEL := EAP245
   DEVICE_VARIANT := v1
   DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
   TPLINK_BOARD_ID := EAP245-V1
+  TPLINK_HEADER_VERSION := 1
+  TPLINK_HWREV := 0x0
 endef
 TARGET_DEVICES += tplink_eap245-v1
 
