@@ -1,0 +1,22 @@
+From b20d392ae3861e7e40db5512ebaae9aad8537fc1 Mon Sep 17 00:00:00 2001
+From: John Thomson <git@johnthomson.fastmail.com.au>
+Date: Fri, 16 Oct 2020 07:02:57 +1000
+Subject: [PATCH] mips: ATH79: support zBoot
+
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+---
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+Index: linux-5.4.67/arch/mips/Kconfig
+===================================================================
+--- linux-5.4.67.orig/arch/mips/Kconfig
++++ linux-5.4.67/arch/mips/Kconfig
+@@ -216,6 +216,7 @@ config ATH79
+ 	select SYS_SUPPORTS_32BIT_KERNEL
+ 	select SYS_SUPPORTS_BIG_ENDIAN
+ 	select SYS_SUPPORTS_MIPS16
++	select SYS_SUPPORTS_ZBOOT
+ 	select SYS_SUPPORTS_ZBOOT_UART_PROM
+ 	select HAVE_PCI
+ 	select USB_ARCH_HAS_EHCI

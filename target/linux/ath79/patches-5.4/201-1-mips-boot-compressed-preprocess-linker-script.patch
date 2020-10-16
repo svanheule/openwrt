@@ -1,0 +1,66 @@
+From 8044188537ae4ca7aa1bfcd16864a28a881f5c1d Mon Sep 17 00:00:00 2001
+From: John Thomson <git@johnthomson.fastmail.com.au>
+Date: Thu, 15 Oct 2020 10:38:33 +1000
+Subject: [PATCH 2/3] mips: boot compressed: preprocess linker script
+
+Preprocess vmlinuz (self-decompressing kernel ELF) linker script
+to avoid using ld -Ttext $(address)
+https://lkml.kernel.org/lkml/20200413153453.zi4jvu3c4ul23e23@google.com/
+
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+---
+ arch/mips/boot/compressed/.gitignore                   | 1 +
+ arch/mips/boot/compressed/Makefile                     | 8 ++++++--
+ arch/mips/boot/compressed/{ld.script => vmlinuz.lds.S} | 2 +-
+ 3 files changed, 8 insertions(+), 3 deletions(-)
+ rename arch/mips/boot/compressed/{ld.script => vmlinuz.lds.S} (96%)
+
+diff --git a/arch/mips/boot/compressed/.gitignore b/arch/mips/boot/compressed/.gitignore
+index ebae133f1d0..f681cb62e16 100644
+--- a/arch/mips/boot/compressed/.gitignore
++++ b/arch/mips/boot/compressed/.gitignore
+@@ -1,2 +1,3 @@
+ ashldi3.c
+ bswapsi.c
++vmlinuz.lds
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 378cbfb31ee..8314e800b25 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -96,11 +96,15 @@ UIMAGE_LOADADDR = $(VMLINUZ_LOAD_ADDRESS)
+ 
+ vmlinuzobjs-y += $(obj)/piggy.o
+ 
++targets += vmlinuz.lds
++$(obj)/vmlinuz.lds: $(obj)/calc_vmlinuz_load_addr $(obj)/vmlinux.bin
++CPPFLAGS_vmlinuz.lds = -DVMLINUZ_LOAD_ADDRESS="$(VMLINUZ_LOAD_ADDRESS)"
++
+ quiet_cmd_zld = LD      $@
+-      cmd_zld = $(LD) $(KBUILD_LDFLAGS) -Ttext $(VMLINUZ_LOAD_ADDRESS) -T $< $(vmlinuzobjs-y) -o $@
++      cmd_zld = $(LD) $(KBUILD_LDFLAGS) -T $< $(vmlinuzobjs-y) -o $@
+ quiet_cmd_strip = STRIP	  $@
+       cmd_strip = $(STRIP) -s $@
+-vmlinuz: $(src)/ld.script $(vmlinuzobjs-y) $(obj)/calc_vmlinuz_load_addr
++vmlinuz: $(obj)/vmlinuz.lds $(vmlinuzobjs-y) $(obj)/calc_vmlinuz_load_addr
+ 	$(call cmd,zld)
+ 	$(call cmd,strip)
+ 
+diff --git a/arch/mips/boot/compressed/ld.script b/arch/mips/boot/compressed/vmlinuz.lds.S
+similarity index 96%
+rename from arch/mips/boot/compressed/ld.script
+rename to arch/mips/boot/compressed/vmlinuz.lds.S
+index 2ed08fbef8e..890c31c55c1 100644
+--- a/arch/mips/boot/compressed/ld.script
++++ b/arch/mips/boot/compressed/vmlinuz.lds.S
+@@ -14,7 +14,7 @@ PHDRS {
+ SECTIONS
+ {
+ 	/* Text and read-only data */
+-	/* . = VMLINUZ_LOAD_ADDRESS; */
++	. = VMLINUZ_LOAD_ADDRESS;
+ 	.text : {
+ 		*(.text)
+ 		*(.rodata)
+-- 
+2.28.0
+

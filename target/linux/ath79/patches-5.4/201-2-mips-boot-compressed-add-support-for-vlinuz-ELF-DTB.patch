@@ -1,0 +1,96 @@
+From 8d6a77ef443f3be8bd6b25bf7c5f51127ceefd87 Mon Sep 17 00:00:00 2001
+From: John Thomson <git@johnthomson.fastmail.com.au>
+Date: Thu, 15 Oct 2020 11:13:39 +1000
+Subject: [PATCH 3/3] mips: boot compressed: add support for vlinuz ELF DTB
+
+For legacy bootloader devices that do not support DTB,
+and only support booting ELF, or have issues booting large ELF files.
+
+vmlinux (objcopy to bytecode then compressed for vmlinuz)
+requires MIPS_RAW_APPENDED_DTB, then
+vmlinuz may use MIPS_ELF_APPENDED_DTB_VMLINUZ, and insert the DTB into
+the ELF:
+
+objcopy --update-section .appended_dtb=<filename>.dtb vmlinuz
+
+Signed-off-by: John Thomson <git@johnthomson.fastmail.com.au>
+---
+ arch/mips/Kconfig                       | 21 +++++++++++++++++++++
+ arch/mips/boot/compressed/decompress.c  |  4 ++++
+ arch/mips/boot/compressed/vmlinuz.lds.S |  9 +++++++++
+ 3 files changed, 34 insertions(+)
+
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 6ecdc690f73..50519d66719 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -3018,6 +3018,27 @@ choice
+ 		  if you don't intend to always append a DTB.
+ endchoice
+ 
++config MIPS_ELF_APPENDED_DTB_VMLINUZ
++	bool "vmlinuz (ELF self-decompressing kernel) appended DTB support"
++	depends on MIPS_RAW_APPENDED_DTB && SYS_SUPPORTS_ZBOOT
++	help
++	  With this option, the vmlinuz (self-decompressing kernel ELF binary)
++	  boot code will look for a device tree binary (DTB|FDT) included in
++	  the vmlinux ELF section .appended_dtb. By default it is empty and
++	  the DTB can be appended using binutils command
++	  objcopy:
++
++	    objcopy --update-section .appended_dtb=<filename>.dtb vmlinuz
++
++	  This is meant as a backward compatiblity convenience for those
++	  systems with a bootloader that can't be upgraded to accommodate
++	  the documented boot protocol using a device tree.
++
++	  vmlinuz uses the compressed vmlinux.bin, thus vmlinux must use
++	  MIPS_RAW_APPENDED_DTB to expect a DTB at the end-of-uncompressed
++	  kernel location. vmlinuz copies the DTB to this location after kernel
++	  decompression.
++
+ choice
+ 	prompt "Kernel command line type" if !CMDLINE_OVERRIDE
+ 	default MIPS_CMDLINE_FROM_DTB if USE_OF && !ATH79 && !MACH_INGENIC && \
+diff --git a/arch/mips/boot/compressed/decompress.c b/arch/mips/boot/compressed/decompress.c
+index 88f5d637b1c..cd1a47c69e3 100644
+--- a/arch/mips/boot/compressed/decompress.c
++++ b/arch/mips/boot/compressed/decompress.c
+@@ -33,7 +33,11 @@ extern void puthex(unsigned long long val);
+ #define puthex(val) do {} while (0)
+ #endif
+ 
++#ifdef CONFIG_MIPS_ELF_APPENDED_DTB_VMLINUZ
++unsigned char __section(.appended_dtb) __appended_dtb[0x100000];
++#else
+ extern char __appended_dtb[];
++#endif
+ 
+ void error(char *x)
+ {
+diff --git a/arch/mips/boot/compressed/vmlinuz.lds.S b/arch/mips/boot/compressed/vmlinuz.lds.S
+index 890c31c55c1..f5a35b60059 100644
+--- a/arch/mips/boot/compressed/vmlinuz.lds.S
++++ b/arch/mips/boot/compressed/vmlinuz.lds.S
+@@ -31,9 +31,18 @@ SECTIONS
+ 		CONSTRUCTORS
+ 		. = ALIGN(16);
+ 	}
++
++#ifdef CONFIG_MIPS_ELF_APPENDED_DTB_VMLINUZ
++	/* keep the empty unreferenced ELF DTB section */
++	.appended_dtb : {
++		*(.appended_dtb)
++		KEEP(*(.appended_dtb))
++	}
++#else
+ 	__appended_dtb = .;
+ 	/* leave space for appended DTB */
+ 	. += 0x100000;
++#endif /* _APPENDED_DTB */
+ 
+ 	_edata = .;
+ 	/* End of data section */
+-- 
+2.28.0
+
