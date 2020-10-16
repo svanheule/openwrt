@@ -405,8 +405,8 @@ endef
 TARGET_DEVICES += tplink_eap225-wall-v2
 
 define Device/tplink_eap245-v1
-  LOADER_TYPE := elf
-  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel
+  KERNEL_NAME := vmlinuz
+  KERNEL := kernel-bin | insert-elf-dtb
   KERNEL_INITRAMFS := $$(KERNEL)
   IMAGES += factory.bin
   IMAGE/sysupgrade.bin := append-rootfs | tplink-safeloader sysupgrade | \
