@@ -1,0 +1,36 @@
+From 7cf769fb49c525f4b5ae3c8803f238e2a1ad6155 Mon Sep 17 00:00:00 2001
+From: Chuanhong Guo <gch981213@gmail.com>
+Date: Sat, 17 Oct 2020 11:11:59 +0800
+Subject: [PATCH] MIPS: zboot: call kernel_entry_setup
+
+some cpus need cpu specific setup before starting execution.
+Call kernel_entry_setup in zboot as well.
+
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+---
+ arch/mips/boot/compressed/head.S | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/mips/boot/compressed/head.S b/arch/mips/boot/compressed/head.S
+index 409cb483a9ff..6898ac98e167 100644
+--- a/arch/mips/boot/compressed/head.S
++++ b/arch/mips/boot/compressed/head.S
+@@ -14,11 +14,15 @@
+ 
+ #include <asm/asm.h>
+ #include <asm/regdef.h>
++#include <kernel-entry-init.h>
+ 
+ 	.set noreorder
+ 	.cprestore
+ 	LEAF(start)
+ start:
++	/* cpu specific setup */
++	kernel_entry_setup
++
+ 	/* Save boot rom start args */
+ 	move	s0, a0
+ 	move	s1, a1
+-- 
+2.26.2
+

@@ -1,0 +1,30 @@
+From f85b77c17abeec0db5a4ae944b13caa3fa418b64 Mon Sep 17 00:00:00 2001
+From: Chuanhong Guo <gch981213@gmail.com>
+Date: Sat, 17 Oct 2020 20:52:39 +0800
+Subject: [PATCH] MIPS: ath79: include mipsregs.h in kernel-entry-init.h
+
+CP0_CONFIG CONF_CM_CMASK and CONF_CM_CACHABLE_NONCOHERENT from
+mipsregs.h are referenced in kernel_entry_setup. Include mipsregs.h
+for these definitions.
+
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+---
+ arch/mips/include/asm/mach-ath79/kernel-entry-init.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/mips/include/asm/mach-ath79/kernel-entry-init.h b/arch/mips/include/asm/mach-ath79/kernel-entry-init.h
+index 88db67bf4761..44cc0c226cfb 100644
+--- a/arch/mips/include/asm/mach-ath79/kernel-entry-init.h
++++ b/arch/mips/include/asm/mach-ath79/kernel-entry-init.h
+@@ -7,6 +7,8 @@
+ #ifndef __ASM_MACH_ATH79_KERNEL_ENTRY_H
+ #define __ASM_MACH_ATH79_KERNEL_ENTRY_H
+ 
++#include <asm/mipsregs.h>
++
+ 	/*
+ 	 * Some bootloaders set the 'Kseg0 coherency algorithm' to
+ 	 * 'Cacheable, noncoherent, write-through, no write allocate'
+-- 
+2.26.2
+
