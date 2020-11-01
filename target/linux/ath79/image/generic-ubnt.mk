@@ -64,7 +64,7 @@ define Device/ubnt-sw
   UBNT_CHIP := ar7240
   UBNT_TYPE := SW
   UBNT_VERSION := 1.4.1
-  KERNEL := kernel-bin | append-dtb | relocate-kernel | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | relocate-kernel | lzma | uImage -C lzma
 endef
 
 define Device/ubnt-wa
@@ -95,7 +95,7 @@ define Device/ubnt-xm
   UBNT_CHIP := ar7240
   UBNT_TYPE := XM
   UBNT_VERSION := 6.0.0
-  KERNEL := kernel-bin | append-dtb | relocate-kernel | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | relocate-kernel | lzma | uImage -C lzma
 endef
 
 define Device/ubnt-xw
@@ -387,7 +387,7 @@ define Device/ubnt_unifi-ap-pro
   UBNT_CHIP := ar934x
   KERNEL_SIZE := 3072k
   IMAGE_SIZE := 15744k
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma | jffs2 kernel0
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma | jffs2 kernel0
   IMAGES := sysupgrade.bin factory.bin
   IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-rootfs |\
 	pad-rootfs | append-metadata | check-size

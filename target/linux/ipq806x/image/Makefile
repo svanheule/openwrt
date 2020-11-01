@@ -28,7 +28,7 @@ endef
 
 define Device/LegacyImage
 	KERNEL_SUFFIX := -uImage
-	KERNEL = kernel-bin | append-dtb | uImage none
+	KERNEL = kernel-bin | append-dtb | uImage
 	KERNEL_NAME := zImage
 endef
 
@@ -53,7 +53,7 @@ endef
 
 define Device/DniImage
 	KERNEL_SUFFIX := -uImage
-	KERNEL = kernel-bin | append-dtb | uImage none
+	KERNEL = kernel-bin | append-dtb | uImage
 	KERNEL_NAME := zImage
 	NETGEAR_BOARD_ID :=
 	NETGEAR_HW_ID :=
@@ -65,7 +65,7 @@ endef
 
 define Device/TpSafeImage
 	KERNEL_SUFFIX := -uImage
-	KERNEL = kernel-bin | append-dtb | uImage none
+	KERNEL = kernel-bin | append-dtb | uImage
 	KERNEL_NAME := zImage
 	TPLINK_BOARD_ID :=
 	IMAGES += factory.bin
@@ -75,7 +75,7 @@ endef
 
 define Device/ZyXELImage
 	KERNEL_SUFFIX := -uImage
-	KERNEL = kernel-bin | append-dtb | uImage none | pad-to $$(KERNEL_SIZE)
+	KERNEL = kernel-bin | append-dtb | uImage | pad-to $$(KERNEL_SIZE)
 	KERNEL_NAME := zImage
 	IMAGES += factory.bin
 	IMAGE/factory.bin := append-rootfs | pad-rootfs | pad-to $$$$(BLOCKSIZE) | zyxel-ras-image separate-kernel
@@ -131,7 +131,7 @@ define Device/linksys_ea7500-v1
 	PAGESIZE := 2048
 	BLOCKSIZE := 128k
 	KERNEL_SIZE := 3072k
-	KERNEL = kernel-bin | append-dtb | uImage none | append-uImage-fakehdr filesystem
+	KERNEL = kernel-bin | append-dtb | uImage | append-uImage-fakehdr filesystem
 	UBINIZE_OPTS := -E 5
 	IMAGES := factory.bin sysupgrade.bin
 	IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | pad-to $$$$(PAGESIZE)
@@ -147,7 +147,7 @@ define Device/linksys_ea8500
 	PAGESIZE := 2048
 	BLOCKSIZE := 128k
 	KERNEL_SIZE := 3072k
-	KERNEL = kernel-bin | append-dtb | uImage none | append-uImage-fakehdr filesystem
+	KERNEL = kernel-bin | append-dtb | uImage | append-uImage-fakehdr filesystem
 	BOARD_NAME := ea8500
 	SUPPORTED_DEVICES += ea8500
 	UBINIZE_OPTS := -E 5
@@ -315,7 +315,7 @@ define Device/tplink_vr2600v
 	DEVICE_MODEL := Archer VR2600v
 	DEVICE_VARIANT := v1
 	KERNEL_SUFFIX := -uImage
-	KERNEL = kernel-bin | append-dtb | uImage none
+	KERNEL = kernel-bin | append-dtb | uImage
 	KERNEL_NAME := zImage
 	KERNEL_SIZE := 3072k
 	SOC := qcom-ipq8064

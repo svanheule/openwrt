@@ -3,9 +3,9 @@ define Device/aerohive_hiveap-330
   DEVICE_MODEL := HiveAP-330
   DEVICE_PACKAGES := kmod-tpm-i2c-atmel
   BLOCKSIZE := 128k
-  KERNEL := kernel-bin | gzip | uImage gzip
+  KERNEL := kernel-bin | gzip | uImage -C gzip
   KERNEL_SIZE := 8m
-  KERNEL_INITRAMFS := copy-file $(KDIR)/vmlinux-initramfs | uImage none
+  KERNEL_INITRAMFS := copy-file $(KDIR)/vmlinux-initramfs | uImage
   IMAGES := fdt.bin sysupgrade.bin
   IMAGE/fdt.bin := append-dtb
   IMAGE/sysupgrade.bin := append-dtb | pad-to 256k | check-size 256k | \

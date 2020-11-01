@@ -19,7 +19,7 @@ define Device/Default
   PROFILES := Default
   DEVICE_DTS = kirkwood-$(lastword $(subst _, ,$(1)))
   KERNEL_DEPENDS = $$(wildcard $(DTS_DIR)/$$(DEVICE_DTS).dts)
-  KERNEL := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | uImage
   KERNEL_NAME := zImage
   KERNEL_SUFFIX  := -uImage
   KERNEL_IN_UBI := 1

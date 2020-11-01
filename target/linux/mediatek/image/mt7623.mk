@@ -84,8 +84,8 @@ define Device/unielec_u7623-02-emmc-512m-legacy
   DEVICE_VARIANT := eMMC/512MiB RAM (legacy image)
   DEVICE_DTS := mt7623a-unielec-u7623-02-emmc-512m
   KERNEL_NAME := zImage
-  KERNEL := kernel-bin | append-dtb | uImage none
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | uImage
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage
   DEVICE_PACKAGES := kmod-fs-vfat kmod-nls-cp437 kmod-nls-iso8859-1 kmod-mmc \
 	mkf2fs e2fsprogs kmod-usb-ohci kmod-usb2 kmod-usb3 kmod-ata-ahci-mtk
   IMAGES := sysupgrade-emmc.bin.gz

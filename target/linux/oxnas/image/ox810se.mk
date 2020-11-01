@@ -16,6 +16,6 @@ define Device/wd_mbwe
   DEVICE_VENDOR := Western Digital
   DEVICE_MODEL := My Book
   DEVICE_VARIANT := World Edition
-  KERNEL := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | uImage
 endef
 TARGET_DEVICES += wd_mbwe

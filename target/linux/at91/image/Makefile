@@ -28,12 +28,12 @@ define Device/Default
   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
   KERNEL_NAME := zImage
   KERNEL_SIZE := 4096k
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma
   DTB_SIZE := 128k
 endef
 
 define Device/dtb
-  KERNEL := kernel-bin | lzma | uImage lzma
+  KERNEL := kernel-bin | lzma | uImage -C lzma
 endef
 
 define Device/evaluation-sdimage

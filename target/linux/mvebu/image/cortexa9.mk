@@ -18,8 +18,8 @@ define Device/buffalo_ls421de
   SUBPAGESIZE :=
   KERNEL_SIZE := 33554432
   FILESYSTEMS := squashfs ubifs
-  KERNEL := kernel-bin | append-dtb | uImage none | buffalo-kernel-jffs2
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | uImage | buffalo-kernel-jffs2
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage
   DEVICE_DTS := armada-370-buffalo-ls421de
   DEVICE_PACKAGES :=  \
     kmod-rtc-rs5c372a kmod-hwmon-gpiofan kmod-hwmon-drivetemp kmod-usb3 \

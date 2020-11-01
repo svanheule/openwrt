@@ -10,7 +10,7 @@ define Device/wd_mybooklive
   SUPPORTED_DEVICES += mbl wd,mybooklive-duo
   BLOCKSIZE := 1k
   DTB_SIZE := 16384
-  KERNEL := kernel-bin | dtb | gzip | uImage gzip
+  KERNEL := kernel-bin | dtb | gzip | uImage -C gzip
   KERNEL_INITRAMFS := kernel-bin | gzip | dtb | MuImage-initramfs gzip
   IMAGES := factory.img.gz sysupgrade.img.gz
   ARTIFACTS := apollo3g.dtb

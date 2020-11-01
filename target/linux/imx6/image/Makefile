@@ -126,7 +126,7 @@ define Device/Default
   KERNEL_SUFFIX := -uImage
   KERNEL_NAME := zImage
   KERNEL_PREFIX := $$(IMAGE_PREFIX)
-  KERNEL := kernel-bin | uImage none
+  KERNEL := kernel-bin | uImage
   IMAGES :=
 endef
 

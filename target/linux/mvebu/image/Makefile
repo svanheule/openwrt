@@ -102,7 +102,7 @@ define Device/Default
   DEVICE_DTS_DIR := $(DTS_DIR)
   BOARD_NAME = $$(DEVICE_DTS)
   KERNEL_NAME := zImage
-  KERNEL := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | uImage
   IMAGES := sysupgrade.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   SUPPORTED_DEVICES = $(subst _,$(comma),$(1))

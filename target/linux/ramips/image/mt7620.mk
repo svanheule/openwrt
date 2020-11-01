@@ -496,9 +496,9 @@ define Device/sunvalley_filehub_common
   LOADER_FLASH_OFFS := 0x200000
   COMPILE := loader-$(1).bin
   COMPILE/loader-$(1).bin := loader-okli-compile | pad-to 64k | lzma | \
-	uImage lzma
-  KERNEL := $(KERNEL_DTB) | uImage lzma -M 0x4f4b4c49
-  KERNEL_INITRAMFS := $(KERNEL_DTB) | uImage lzma
+	uImage -C lzma
+  KERNEL := $(KERNEL_DTB) | uImage -C lzma -M 0x4f4b4c49
+  KERNEL_INITRAMFS := $(KERNEL_DTB) | uImage -C lzma
   IMAGES += kernel.bin rootfs.bin
   IMAGE/kernel.bin := append-loader-okli $(1) | check-size 64k
   IMAGE/rootfs.bin := $$(sysupgrade_bin) | check-size
@@ -669,7 +669,7 @@ define Device/netgear_ex2700
   BLOCKSIZE := 4k
   IMAGE_SIZE := 3776k
   IMAGES += factory.bin
-  KERNEL := $(KERNEL_DTB) | uImage lzma | pad-offset 64k 64 | \
+  KERNEL := $(KERNEL_DTB) | uImage -C lzma | pad-offset 64k 64 | \
 	append-uImage-fakehdr filesystem
   IMAGE/factory.bin := $$(sysupgrade_bin) | check-size | netgear-dni
   DEVICE_VENDOR := NETGEAR
@@ -742,7 +742,7 @@ define Device/netgear_wn3000rp-v3
   NETGEAR_BOARD_ID := WN3000RPv3
   BLOCKSIZE := 4k
   IMAGES += factory.bin
-  KERNEL := $(KERNEL_DTB) | uImage lzma | pad-offset 64k 64 | \
+  KERNEL := $(KERNEL_DTB) | uImage -C lzma | pad-offset 64k 64 | \
 	append-uImage-fakehdr filesystem
   IMAGE/factory.bin := $$(sysupgrade_bin) | check-size | netgear-dni
   DEVICE_VENDOR := NETGEAR
@@ -759,7 +759,7 @@ define Device/netis_wf2770
   DEVICE_VENDOR := NETIS
   DEVICE_MODEL := WF2770
   DEVICE_PACKAGES := kmod-mt76x0e
-  KERNEL_INITRAMFS := $(KERNEL_DTB) | netis-tail WF2770 | uImage lzma
+  KERNEL_INITRAMFS := $(KERNEL_DTB) | netis-tail WF2770 | uImage -C lzma
 endef
 TARGET_DEVICES += netis_wf2770
 

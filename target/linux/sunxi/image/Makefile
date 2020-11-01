@@ -34,7 +34,7 @@ endef
 define Device/Default
   PROFILES := Default
   KERNEL_NAME := zImage
-  KERNEL := kernel-bin | uImage none
+  KERNEL := kernel-bin | uImage
   IMAGES := sdcard.img.gz
   IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))

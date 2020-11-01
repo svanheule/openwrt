@@ -9,7 +9,7 @@ define Device/Default
   PROFILES := Default
   FILESYSTEMS := squashfs
   IMAGES := firmware.bin sysupgrade.bin
-  KERNEL := kernel-bin | uImage none
+  KERNEL := kernel-bin | uImage
   KERNEL_NAME := zImage
   KERNEL_LOADADDR := 0x80008000
   KERNEL_ENTRY_POINT := 0x80008000

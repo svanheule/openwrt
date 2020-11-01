@@ -288,7 +288,7 @@ define Device/dlink_dir-860l-b1
   SEAMA_SIGNATURE := wrgac13_dlink.2013gui_dir860lb
   LOADER_TYPE := bin
   KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | relocate-kernel | \
-	lzma -a0 | uImage lzma
+	lzma -a0 | uImage -C lzma
   IMAGE_SIZE := 16064k
   DEVICE_VENDOR := D-Link
   DEVICE_MODEL := DIR-860L
@@ -527,7 +527,7 @@ define Device/iodata_nand
   KERNEL_SIZE := 4096k
   IMAGE_SIZE := 51200k
   LOADER_TYPE := bin
-  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | lzma | uImage -C lzma
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 
@@ -930,7 +930,7 @@ define Device/netis_wf2881
   IMAGE_SIZE := 129280k
   UBINIZE_OPTS := -E 5
   UIMAGE_NAME := WF2881_0.0.00
-  KERNEL_INITRAMFS := $(KERNEL_DTB) | netis-tail WF2881 | uImage lzma
+  KERNEL_INITRAMFS := $(KERNEL_DTB) | netis-tail WF2881 | uImage -C lzma
   IMAGES += factory.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | \
@@ -1366,7 +1366,7 @@ define Device/zyxel_wap6805
   DEVICE_VENDOR := ZyXEL
   DEVICE_MODEL := WAP6805
   DEVICE_PACKAGES := kmod-mt7603 kmod-mt7621-qtn-rgmii
-  KERNEL := $(KERNEL_DTB) | uImage lzma | uimage-padhdr 160
+  KERNEL := $(KERNEL_DTB) | uImage -C lzma | uimage-padhdr 160
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += zyxel_wap6805

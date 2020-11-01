@@ -31,7 +31,7 @@ define Device/tplink-nolzma
   LOADER_FLASH_OFFS := 0x22000
   COMPILE := loader-$(1).gz
   COMPILE/loader-$(1).gz := loader-okli-compile
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49 | \
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma -M 0x4f4b4c49 | \
 	loader-okli $(1) 7680
   KERNEL_INITRAMFS := kernel-bin | append-dtb | gzip | tplink-v1-header
 endef
@@ -80,7 +80,7 @@ endef
 
 define Device/tplink-safeloader-uimage
   $(Device/tplink-safeloader)
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma
   KERNEL_INITRAMFS := $$(KERNEL)
 endef
 
@@ -90,7 +90,7 @@ define Device/tplink-safeloader-okli
   LOADER_FLASH_OFFS := 0x43000
   COMPILE := loader-$(1).elf
   COMPILE/loader-$(1).elf := loader-okli-compile
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49 | \
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma -M 0x4f4b4c49 | \
 	loader-okli $(1) 12288
   KERNEL_INITRAMFS := $$(KERNEL)
 endef

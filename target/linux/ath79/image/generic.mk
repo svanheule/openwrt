@@ -767,7 +767,7 @@ define Device/dlink_dir-842-c
   # 64 bytes offset:
   # - 28 bytes seama_header
   # - 36 bytes of META data (4-bytes aligned)
-  IMAGE/default := append-kernel | uImage lzma | \
+  IMAGE/default := append-kernel | uImage -C lzma | \
 	pad-offset $$$$(BLOCKSIZE) 64 | append-rootfs
   IMAGE/sysupgrade.bin := $$(IMAGE/default) | seama | pad-rootfs | \
 	append-metadata | check-size
@@ -841,12 +841,12 @@ TARGET_DEVICES += embeddedwireless_dorin
 
 define Device/engenius_loader_okli
   DEVICE_VENDOR := EnGenius
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma -M 0x4f4b4c49
   LOADER_TYPE := bin
   COMPILE := loader-$(1).bin loader-$(1).uImage
   COMPILE/loader-$(1).bin := loader-okli-compile
   COMPILE/loader-$(1).uImage := append-loader-okli $(1) | pad-to 64k | lzma | \
-	uImage lzma
+	uImage -C lzma
   IMAGES += factory.bin
   IMAGE/factory.bin := append-squashfs-fakeroot-be | pad-to $$$$(BLOCKSIZE) | \
 	append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | \
@@ -1445,8 +1445,8 @@ define Device/pisen_wmb001n
   COMPILE := loader-$(1).bin loader-$(1).uImage
   COMPILE/loader-$(1).bin := loader-okli-compile
   COMPILE/loader-$(1).uImage := append-loader-okli $(1) | pad-to 64k | lzma | \
-	uImage lzma
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49
+	uImage -C lzma
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma -M 0x4f4b4c49
   IMAGES += factory.bin
   IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | pisen_wmb001n-factory $(1)
 endef
@@ -1592,8 +1592,8 @@ define Device/siemens_ws-ap3610
   LOADER_FLASH_OFFS := 0x82000
   COMPILE := loader-$(1).bin
   COMPILE/loader-$(1).bin := loader-okli-compile
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49 | loader-okli $(1) 8128 | uImage none
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma -M 0x4f4b4c49 | loader-okli $(1) 8128 | uImage
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage
 endef
 TARGET_DEVICES += siemens_ws-ap3610
 
@@ -1649,7 +1649,7 @@ define Device/teltonika_rut955
   TPLINK_HWREV := 0x1
   TPLINK_HEADER_VERSION := 1
   KERNEL := kernel-bin | append-dtb | lzma | tplink-v1-header
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage lzma
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage -C lzma
   IMAGES += factory.bin
   IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs |\
 	pad-rootfs | teltonika-fw-fake-checksum | append-string master |\

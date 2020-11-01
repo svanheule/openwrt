@@ -12,7 +12,7 @@ define Device/Default
   PROFILES := Default
   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
   DEVICE_DTS := ox820-$(subst _,-,$(1))
-  KERNEL := kernel-bin | append-dtb | uImage none
+  KERNEL := kernel-bin | append-dtb | uImage
   IMAGES := ubinized.bin sysupgrade.tar
   IMAGE/ubinized.bin := append-ubi
   IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
@@ -70,7 +70,7 @@ define Device/shuttle_kd20
   SUPPORTED_DEVICES += kd20
   KERNEL_INITRAMFS_PREFIX = $$(IMAGE_PREFIX)-factory
   KERNEL_INITRAMFS_SUFFIX := .tar.gz
-  KERNEL_INITRAMFS = kernel-bin | append-dtb | uImage none | omninas-factory | \
+  KERNEL_INITRAMFS = kernel-bin | append-dtb | uImage | omninas-factory | \
 	encrypt-3des sohmuntitnlaes
   DEVICE_PACKAGES := kmod-usb2-oxnas kmod-usb3 kmod-usb-ledtrig-usbport \
 	kmod-i2c-gpio kmod-rtc-pcf8563 kmod-gpio-beeper kmod-hwmon-drivetemp \

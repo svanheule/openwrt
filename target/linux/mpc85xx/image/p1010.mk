@@ -11,7 +11,7 @@ define Device/tplink_tl-wdr4900-v1
   KERNEL_SIZE := 2684k
   KERNEL_NAME := simpleImage.tl-wdr4900-v1
   KERNEL_INITRAMFS :=
-  KERNEL := kernel-bin | uImage none
+  KERNEL := kernel-bin | uImage
   KERNEL_ENTRY := 0x1000000
   KERNEL_LOADADDR := 0x1000000
   SUPPORTED_DEVICES += tl-wdr4900-v1

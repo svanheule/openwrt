@@ -260,7 +260,7 @@ TARGET_DEVICES += buffalo_wtr-m2133hp
 define Device/cellc_rtl30vw
 	KERNEL_SUFFIX := -fit-uImage.itb
 	KERNEL_INITRAMFS = kernel-bin | gzip | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb
-	KERNEL = kernel-bin | gzip | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb | uImage lzma | pad-to 2048
+	KERNEL = kernel-bin | gzip | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb | uImage -C lzma | pad-to 2048
 	KERNEL_NAME := Image
 	KERNEL_IN_UBI :=
 	IMAGES := nand-factory.bin nand-sysupgrade.bin

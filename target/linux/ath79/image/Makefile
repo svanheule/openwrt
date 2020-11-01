@@ -54,8 +54,8 @@ define Device/Default
   PROFILES = Default
   MTDPARTS :=
   BLOCKSIZE := 64k
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage -C lzma
   COMPILE :=
   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
   IMAGES := sysupgrade.bin

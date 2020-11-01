@@ -9,7 +9,7 @@ define Device/Default
   PROFILES := Default
   IMAGES := firmware.bin sysupgrade.bin
   FILESYSTEMS := squashfs
-  KERNEL := kernel-bin | gzip | uImage gzip
+  KERNEL := kernel-bin | gzip | uImage -C gzip
   KERNEL_LOADADDR := 0x80080000
   KERNEL_ENTRY_POINT := 0x80080000
   DEVICE_DTS = freescale/$(subst _,-,$(1))

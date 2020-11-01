@@ -19,8 +19,8 @@ endef
 
 define Device/Default
   PROFILES = Default
-  KERNEL := kernel-bin | append-dtb | gzip | uImage gzip
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | gzip | uImage gzip
+  KERNEL := kernel-bin | append-dtb | gzip | uImage -C gzip
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | gzip | uImage -C gzip
   DEVICE_DTS_DIR := ../dts
   DEVICE_DTS = $$(SOC)_$(1)
   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))

@@ -60,8 +60,8 @@ define Device/Default
   PROFILES = Default
   KERNEL_DEPENDS = $$(wildcard $(DTS_DIR)/$$(DEVICE_DTS).dts)
   KERNEL_INITRAMFS_NAME = $$(KERNEL_NAME)-initramfs
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage lzma
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage -C lzma
   FILESYSTEMS := squashfs
   SOC := $(DEFAULT_SOC)
   DEVICE_DTS = $$(SOC)_$(1)
@@ -96,7 +96,7 @@ define Device/lantiqBrnImage
 endef
 
 define Device/lantiqFullImage
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma | pad-offset 4 0
+  KERNEL := kernel-bin | append-dtb | lzma | uImage -C lzma | pad-offset 4 0
   IMAGES := sysupgrade.bin fullimage.bin
   IMAGE/fullimage.bin := fullimage | check-size
 endef

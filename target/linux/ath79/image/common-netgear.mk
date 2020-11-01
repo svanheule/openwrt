@@ -30,7 +30,7 @@ define Build/netgear-squashfs
 endef
 
 define Build/netgear-uImage
-	$(call Build/uImage,$(1) -M $(NETGEAR_KERNEL_MAGIC))
+	$(call Build/uImage,-C $(1) -M $(NETGEAR_KERNEL_MAGIC))
 endef
 
 define Device/netgear_generic

@@ -176,7 +176,7 @@ endef
 
 define Device/Default
   PROFILES = Default
-  KERNEL := $(KERNEL_DTB) | uImage lzma
+  KERNEL := $(KERNEL_DTB) | uImage -C lzma
   SOC := $(DEFAULT_SOC)
   DEVICE_DTS_DIR := ../dts
   DEVICE_DTS = $$(SOC)_$(1)
@@ -216,7 +216,7 @@ endef
 
 define Device/uimage-lzma-loader
   LOADER_TYPE := bin
-  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | uImage none
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | uImage
 endef
 
 include $(SUBTARGET).mk
