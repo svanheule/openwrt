@@ -398,7 +398,7 @@ define Build/uImage
 		-O linux -T kernel \
 		-C $(word 1,$(1)) -a $(KERNEL_LOADADDR) -e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
 		-n '$(if $(UIMAGE_NAME),$(UIMAGE_NAME),$(call toupper,$(LINUX_KARCH)) $(VERSION_DIST) Linux-$(LINUX_VERSION))' \
-		$(wordlist 2,$(words $(1)),$(1)) -d $@ $@.new
+		$(if $(UIMAGE_MAGIC),-M $(UIMAGE_MAGIC)) $(wordlist 2,$(words $(1)),$(1)) -d $@ $@.new
 	mv $@.new $@
 endef
 
