@@ -26,8 +26,8 @@
 	};
 };
 
-&gpio0 {
-	indirect-access-bus-id = <0>;
+&gpio1 {
+	status = "okay";
 };
 
 &spi0 {
