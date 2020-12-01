@@ -56,13 +56,13 @@ struct rtl8380_gpio_ctrl {
 
 static u32 rtl8380_gpio_read(struct rtl8380_gpio_ctrl *ctrl, unsigned int reg)
 {
-	return readl(ctrl->base + reg);
+	return swab32(ioread32(ctrl->base + reg));
 }
 
 static void rtl8380_gpio_write(struct rtl8380_gpio_ctrl *ctrl,
 			unsigned int reg, u32 val)
 {
-	return writel(val, ctrl->base + reg);
+	return iowrite32(swab32(val), ctrl->base + reg);
 }
 
 static void rtl8380_gpio_update_bits(struct rtl8380_gpio_ctrl *ctrl,
