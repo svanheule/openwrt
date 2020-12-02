@@ -174,6 +174,8 @@ static int rtl8380_gpio_probe(struct platform_device *pdev)
 	ctrl->gc.direction_output = rtl8380_direction_output;
 	ctrl->gc.get_direction = rtl8380_get_direction;
 
+	dev_info(&pdev->dev, "CNR register: %08x\n", rtl8380_gpio_read(ctrl, RTL8380_GPIO_REG_CNR));
+
 	err = gpiochip_add_data(&ctrl->gc, ctrl);
 	return err;
 }
