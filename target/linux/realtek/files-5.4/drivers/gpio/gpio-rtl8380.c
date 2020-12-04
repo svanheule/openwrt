@@ -138,16 +138,15 @@ static int rtl8380_gpio_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	platform_set_drvdata(pdev, ctrl);
 
-	if (np) {
-		err = of_property_read_u32(np, "ngpios", &ngpios);
-		if (err) {
-			dev_err(&pdev->dev, "invalid ngpios property\n");
-			return err;
-		}
-	}
-	else {
-		dev_err(&pdev->dev, "No DT node found\n");
+	if (!np) {
+		dev_err(&pdev->dev, "no DT node found\n");
 		return -EINVAL;
+	}
+
+	err = of_property_read_u32(np, "ngpios", &ngpios);
+	if (err) {
+		dev_err(&pdev->dev, "invalid ngpios property\n");
+		return err;
 	}
 
 	if (ngpios > 32) {
