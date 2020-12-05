@@ -68,21 +68,21 @@ static void rtl8380_gpio_write(struct rtl8380_gpio_ctrl *ctrl,
 static void rtl8380_gpio_update_bits(struct rtl8380_gpio_ctrl *ctrl,
 			unsigned int reg, u32 mask, u32 bits)
 {
+	unsigned long flags;
 	u32 v;
 
+	raw_spin_lock_irqsave(&ctrl->lock, flags);
 	v = rtl8380_gpio_read(ctrl, reg);
 	rtl8380_gpio_write(ctrl, reg, (v & ~mask) | (bits & mask));
+	raw_spin_unlock_irqrestore(&ctrl->lock, flags);
 }
 
 static void rtl8380_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
 {
-	unsigned long flags;
 	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
 	u32 mask = BIT(offset);
 
-	raw_spin_lock_irqsave(&ctrl->lock, flags);
 	rtl8380_gpio_update_bits(ctrl, RTL8380_GPIO_REG_DATA, mask, value << offset);
-	raw_spin_unlock_irqrestore(&ctrl->lock, flags);
 }
 
 static int rtl8380_gpio_get(struct gpio_chip *gc, unsigned int offset)
@@ -94,12 +94,9 @@ static int rtl8380_gpio_get(struct gpio_chip *gc, unsigned int offset)
 
 static int rtl8380_direction_input(struct gpio_chip *gc, unsigned int offset)
 {
-	unsigned long flags;
 	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
 
-	raw_spin_lock_irqsave(&ctrl->lock, flags);
 	rtl8380_gpio_update_bits(ctrl, RTL8380_GPIO_REG_DIR, BIT(offset), 0);
-	raw_spin_unlock_irqrestore(&ctrl->lock, flags);
 
 	return 0;
 }
@@ -110,10 +107,8 @@ static int rtl8380_direction_output(struct gpio_chip *gc, unsigned int offset, i
 	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
 	u32 mask = BIT(offset);
 
-	raw_spin_lock_irqsave(&ctrl->lock, flags);
 	rtl8380_gpio_update_bits(ctrl, RTL8380_GPIO_REG_DIR, mask, mask);
 	rtl8380_gpio_set(gc, offset, value);
-	raw_spin_unlock_irqrestore(&ctrl->lock, flags);
 
 	return 0;
 }
