@@ -14,6 +14,10 @@
 		bootargs = "console=ttyS0,115200";
 	};
 
+	aliases {
+		mdio-gpio0 = &mdio1;
+	};
+
 	keys {
 		compatible = "gpio-keys-polled";
 		poll-interval = <20>;
@@ -24,10 +28,29 @@
 			linux,code = <KEY_RESTART>;
 		};
 	};
-};
 
-&gpio1 {
-	status = "okay";
+	mdio1: mdio {
+		compatible = "virtual,mdio-gpio";
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>,
+			<&gpio0 3 GPIO_ACTIVE_HIGH>;
+
+		expander31: gpio-expander@31 {
+			reg = <31>;
+		};
+	};
+
+	gpio2: rtl8231@31 {
+		compatible = "realtek,rtl8231-gpio";
+		#gpio-cells = <2>;
+
+		dev-handle = <&expander31>;
+
+		ngpios = <35>;
+	};
 };
 
 &spi0 {
