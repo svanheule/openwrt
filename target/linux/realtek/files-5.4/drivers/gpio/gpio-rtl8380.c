@@ -26,18 +26,23 @@
  *  P_G_IMR	(GPIO_BASE + 0x34)
  */
 
+/* Total register block size is 0x1C for ports A, B, C, and D.
+ * same layout repeats at GPIO_CTRL_REG_BASE + 0x1C for ports E, F, G, (and H).
+ */
+#define RTL8380_GPIO_PORTA_REG_BASE 0
+#define RTL8380_GPIO_PORTE_REG_BASE 0x1C
+
 // Pin mux? 0: "normal", 1: "dedicate peripheral"
-#define RTL8380_PINMUX_REG_CNR		0x00
-#define RTL8380_PINMUX_REG_PTYPE	0x04
+#define RTL8380_GPIO_REG_CNR		0x00
 // Set bit to 0 for input, 1 for output (output enable)
-#define RTL8380_GPIO_REG_DIR		0x00
-#define RTL8380_GPIO_REG_DATA		0x04
+#define RTL8380_GPIO_REG_DIR		0x08
+#define RTL8380_GPIO_REG_DATA		0x0C
 // Read bit for IRQ status, write 1 to clear IRQ
-#define RTL8380_GPIO_REG_ISR		0x08
+#define RTL8380_GPIO_REG_ISR		0x10
 // Two bits per pin, 0: disable, 1: falling, 2: rising, 3: both
 // use swahw32 to manipulate these registers
-#define RTL8380_GPIO_REG_IMR_LOW	0x0C
-#define RTL8380_GPIO_REG_IMR_HI		0x10
+#define RTL8380_GPIO_REG_IMR_LOW	0x14
+#define RTL8380_GPIO_REG_IMR_HI		0x18
 
 #define RTL8380_GPIO_IRQ_EDGE_FALLING	1
 #define RTL8380_GPIO_IRQ_EDGE_RISING	2
@@ -162,6 +167,8 @@ static int rtl8380_gpio_probe(struct platform_device *pdev)
 	ctrl->gc.direction_input = rtl8380_direction_input;
 	ctrl->gc.direction_output = rtl8380_direction_output;
 	ctrl->gc.get_direction = rtl8380_get_direction;
+
+	dev_info(&pdev->dev, "CNR register: %08x\n", rtl8380_gpio_read(ctrl, RTL8380_GPIO_REG_CNR));
 
 	err = gpiochip_add_data(&ctrl->gc, ctrl);
 	return err;

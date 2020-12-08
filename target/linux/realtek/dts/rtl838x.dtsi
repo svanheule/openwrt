@@ -135,9 +135,9 @@
 		no-loopback-test;
 	};
 
-	gpio0: gpio-controller@b8003508 {
+	gpio0: gpio-controller@b8003500 {
 		compatible = "realtek,rtl8380-gpio";
-		reg = <0xb8003508 0x18>;
+		reg = <0xb8003500 0x1c>;
 		gpio-controller;
 		#gpio-cells = <2>;
 		ngpios = <32>;
