@@ -1,6 +1,6 @@
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -441,6 +441,18 @@ config GPIO_REG
+@@ -441,6 +441,19 @@ config GPIO_REG
  	  A 32-bit single register GPIO fixed in/out implementation.  This
  	  can be used to represent any register as a set of GPIO signals.
  
@@ -13,6 +13,7 @@
 +config GPIO_RTL8380
 +	tristate "RTL8380 GPIO"
 +	depends on RTL838X
++	select GPIO_GENERIC
 +	help
 +	  Say yes here to support RTL8380 GPIO devices.
 +

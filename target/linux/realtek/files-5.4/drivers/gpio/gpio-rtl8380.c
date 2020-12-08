@@ -51,72 +51,6 @@ struct rtl8380_gpio_ctrl {
 	// TODO gpio irq
 };
 
-static u32 rtl8380_gpio_read(struct rtl8380_gpio_ctrl *ctrl, unsigned int reg)
-{
-	return swab32(ioread32(ctrl->base + reg));
-}
-
-static void rtl8380_gpio_write(struct rtl8380_gpio_ctrl *ctrl,
-			unsigned int reg, u32 val)
-{
-	return iowrite32(swab32(val), ctrl->base + reg);
-}
-
-static void rtl8380_gpio_update_bits(struct rtl8380_gpio_ctrl *ctrl,
-			unsigned int reg, u32 mask, u32 bits)
-{
-	unsigned long flags;
-	u32 v;
-
-	raw_spin_lock_irqsave(&ctrl->lock, flags);
-	v = rtl8380_gpio_read(ctrl, reg);
-	rtl8380_gpio_write(ctrl, reg, (v & ~mask) | (bits & mask));
-	raw_spin_unlock_irqrestore(&ctrl->lock, flags);
-}
-
-static void rtl8380_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
-{
-	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
-	u32 mask = BIT(offset);
-
-	rtl8380_gpio_update_bits(ctrl, RTL8380_GPIO_REG_DATA, mask, value << offset);
-}
-
-static int rtl8380_gpio_get(struct gpio_chip *gc, unsigned int offset)
-{
-	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
-
-	return !!(rtl8380_gpio_read(ctrl, RTL8380_GPIO_REG_DATA) & BIT(offset));
-}
-
-static int rtl8380_direction_input(struct gpio_chip *gc, unsigned int offset)
-{
-	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
-
-	rtl8380_gpio_update_bits(ctrl, RTL8380_GPIO_REG_DIR, BIT(offset), 0);
-
-	return 0;
-}
-
-static int rtl8380_direction_output(struct gpio_chip *gc, unsigned int offset, int value)
-{
-	unsigned long flags;
-	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
-	u32 mask = BIT(offset);
-
-	rtl8380_gpio_update_bits(ctrl, RTL8380_GPIO_REG_DIR, mask, mask);
-	rtl8380_gpio_set(gc, offset, value);
-
-	return 0;
-}
-
-static int rtl8380_get_direction(struct gpio_chip *gc, unsigned int offset)
-{
-	struct rtl8380_gpio_ctrl *ctrl = gpiochip_get_data(gc);
-
-	return !(rtl8380_gpio_read(ctrl, RTL8380_GPIO_REG_DIR) & BIT(offset));
-}
-
 static int rtl8380_gpio_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
@@ -148,21 +82,12 @@ static int rtl8380_gpio_probe(struct platform_device *pdev)
 		return PTR_ERR(ctrl->base);
 
 	raw_spin_lock_init(&ctrl->lock);
-	// Let the GPIO subsystem assign the base number
-	ctrl->gc.base = -1;
+	bgpio_init(&ctrl->gc, dev, 4,
+		ctrl->base + RTL8380_GPIO_REG_DATA, NULL, NULL,
+		ctrl->base + RTL8380_GPIO_REG_DIR, NULL,
+		BGPIOF_BIG_ENDIAN_BYTE_ORDER);
+
 	ctrl->gc.ngpio = ngpios;
-	ctrl->gc.label = "rtl8380-gpio";
-	ctrl->gc.parent = dev;
-	ctrl->gc.owner = THIS_MODULE;
-	ctrl->gc.can_sleep = false;
-
-	ctrl->gc.set = rtl8380_gpio_set;
-	ctrl->gc.get = rtl8380_gpio_get;
-	ctrl->gc.direction_input = rtl8380_direction_input;
-	ctrl->gc.direction_output = rtl8380_direction_output;
-	ctrl->gc.get_direction = rtl8380_get_direction;
-
-	dev_info(&pdev->dev, "CNR register: %08x\n", rtl8380_gpio_read(ctrl, RTL8380_GPIO_REG_CNR));
 
 	err = gpiochip_add_data(&ctrl->gc, ctrl);
 	return err;
