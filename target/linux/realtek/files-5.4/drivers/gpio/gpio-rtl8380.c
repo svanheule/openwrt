@@ -138,11 +138,8 @@ static int rtl8380_gpio_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
-	err = of_property_read_u32(np, "ngpios", &ngpios);
-	if (err) {
-		dev_err(&pdev->dev, "invalid ngpios property\n");
-		return err;
-	}
+	if (of_property_read_u32(np, "ngpios", &ngpios) != 0)
+		ngpios = 32;
 
 	if (ngpios > 32) {
 		dev_err(&pdev->dev, "ngpios must be smaller than or equal to 32\n");
