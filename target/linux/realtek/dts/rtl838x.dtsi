@@ -141,8 +141,11 @@
 		gpio-controller;
 		#gpio-cells = <2>;
 		ngpios = <32>;
+
 		interrupt-parent = <&intc>;
 		interrupts = <23>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
 	};
 
 	gpio1: rtl8231-gpio {
