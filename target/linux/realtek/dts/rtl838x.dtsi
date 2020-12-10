@@ -140,7 +140,7 @@
 		reg = <0xb8003500 0x1c>;
 		gpio-controller;
 		#gpio-cells = <2>;
-		ngpios = <32>;
+		ngpios = <24>;
 
 		interrupt-parent = <&intc>;
 		interrupts = <23>;
