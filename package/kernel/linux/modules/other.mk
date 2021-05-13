@@ -520,6 +520,21 @@ endef
 $(eval $(call KernelPackage,bcma))
 
 
+define KernelPackage/regulator-userspace
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Regulator userspace consumer support
+  KCONFIG:=CONFIG_REGULATOR_USERSPACE_CONSUMER
+  FILES:=$(LINUX_DIR)/drivers/regulator/userspace-consumer.ko
+  AUTOLOAD:=$(call AutoLoad,reg-userspace-consumer)
+endef
+
+define KernelPackage/regulator-userspace/description
+  Driver to provide regulator control from userspace.
+endef
+
+$(eval $(call KernelPackage,regulator-userspace))
+
+
 define KernelPackage/rtc-ds1307
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Dallas/Maxim DS1307 (and compatible) RTC support
