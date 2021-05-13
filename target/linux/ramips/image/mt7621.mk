@@ -1136,7 +1136,7 @@ define Device/tplink_eap235-wall-v1
   $(Device/tplink-safeloader)
   DEVICE_MODEL := EAP235-Wall
   DEVICE_VARIANT := v1
-  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap kmod-regulator-userspace
   TPLINK_BOARD_ID := EAP235-WALL-V1
   IMAGE_SIZE := 13440k
   IMAGE/factory.bin := append-rootfs | tplink-safeloader factory | \
